@@ -1,0 +1,12 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+inst/doc
+/doc/
+/Meta/
+*.Rproj
+man/*.Rd
+!man/.gitkeep
+.Renviron
