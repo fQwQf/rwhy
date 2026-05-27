@@ -17,6 +17,7 @@ why <- function() {
   }
 
   source_context <- try_get_source_context()
+  traceback_context <- paste(utils::capture.output(traceback()), collapse = "\n")
 
   # Language-adaptive system prompt
   lang_instr <- t("prompt_error_lang")
@@ -38,6 +39,10 @@ why <- function() {
     sprintf("My R code produced this error:\n%s", last_error),
     if (!is.null(source_context) && nzchar(source_context)) {
       sprintf("\nHere is the surrounding code for context:\n%s", source_context)
+    },
+    if (nzchar(trimws(traceback_context)) &&
+        !grepl("No traceback available", traceback_context, fixed = TRUE)) {
+      sprintf("\nHere is the traceback:\n%s", traceback_context)
     }
   )
   prompt <- paste(prompt_parts, collapse = "")
@@ -61,6 +66,11 @@ why <- function() {
 #' \dontrun{ watch_on(); 1 + "a"; watch_off() }
 #' @export
 watch_on <- function() {
+  if (isTRUE(getOption("rwhy.watch_on", FALSE))) {
+    cli::cli_alert_info(t("watch_already_on"))
+    return(invisible(NULL))
+  }
+
   old_handler <- getOption("error")
   rwhy_handler <- function() {
     last_error <- .rwhy_geterrmessage()
@@ -80,8 +90,15 @@ watch_on <- function() {
         cli::cli_alert_danger(t("why_auto_fail"))
       })
     }
+
+    old_handler <- getOption("rwhy._old_error_handler")
+    invoke_error_handler(old_handler)
   }
-  options(error = rwhy_handler, rwhy._old_error_handler = old_handler)
+  options(
+    error = rwhy_handler,
+    rwhy._old_error_handler = old_handler,
+    rwhy.watch_on = TRUE
+  )
   cli::cli_alert_success(t("watch_on"))
   invisible(NULL)
 }
@@ -94,6 +111,21 @@ watch_off <- function() {
   if (is.null(old_handler)) old_handler <- NULL
   options(error = old_handler)
   options(rwhy._old_error_handler = NULL)
+  options(rwhy.watch_on = FALSE)
   cli::cli_alert_success(t("watch_off"))
+  invisible(NULL)
+}
+
+
+#' @noRd
+invoke_error_handler <- function(handler) {
+  if (is.null(handler)) return(invisible(NULL))
+
+  if (is.function(handler)) {
+    handler()
+  } else if (is.expression(handler) || is.call(handler)) {
+    eval(handler, envir = parent.frame())
+  }
+
   invisible(NULL)
 }

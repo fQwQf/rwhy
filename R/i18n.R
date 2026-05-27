@@ -2,7 +2,7 @@
 #' @description Simple language auto-detection and message translation system.
 #'   Detects the user's locale and returns messages in Chinese (zh) or
 #'   English (en). Can be overridden with \code{options(rwhy.lang = "zh")}.
-#' @keywords internal
+#' @noRd
 NULL
 
 
@@ -10,7 +10,7 @@ NULL
 #' @description Detect the user's preferred language from environment variables
 #'   and R locale settings.
 #' @return Character: \code{"zh"} or \code{"en"}.
-#' @keywords internal
+#' @noRd
 .detect_lang <- function() {
   # 1. Explicit override
   override <- getOption("rwhy.lang")
@@ -75,7 +75,7 @@ rwhy_lang <- function(lang = NULL) {
 #'   at all.
 #' @param key Character. The message key.
 #' @return The translated string.
-#' @keywords internal
+#' @noRd
 t <- function(key) {
   lang <- rwhy_lang()
   entry <- .msg[[key]]
@@ -101,6 +101,18 @@ t <- function(key) {
     en = "{.arg key} must be a non-empty character string.",
     zh = "{.arg key} \u5fc5\u987b\u662f\u975e\u7a7a\u5b57\u7b26\u4e32\u3002"
   ),
+  key_prompt = list(
+    en = "Paste your API key: ",
+    zh = "\u7c98\u8d34\u60a8\u7684 API \u5bc6\u94a5\uff1a"
+  ),
+  key_missing_noninteractive = list(
+    en = "{.fn set_ai_key} needs {.arg key} in non-interactive sessions.",
+    zh = "\u975e\u4ea4\u4e92\u5f0f\u4f1a\u8bdd\u4e2d {.fn set_ai_key} \u9700\u8981 {.arg key} \u53c2\u6570\u3002"
+  ),
+  key_missing_hint = list(
+    en = "Use {.code set_ai_key(\"sk-...\")} after selecting a provider with {.fn use_*}, or run {.fn set_ai_key} from an interactive R console.",
+    zh = "\u8bf7\u5148\u7528 {.fn use_*} \u9009\u62e9\u670d\u52a1\u5546\u540e\u8fd0\u884c {.code set_ai_key(\"sk-...\")}\uff0c\u6216\u5728\u4ea4\u4e92\u5f0f R \u63a7\u5236\u53f0\u4e2d\u8fd0\u884c {.fn set_ai_key}\u3002"
+  ),
   key_saved = list(
     en = "API key saved to {.file ~/.Renviron}. Restart R to reload.",
     zh = "API \u5bc6\u94a5\u5df2\u4fdd\u5b58\u81f3 {.file ~/.Renviron}\uff0c\u8bf7\u91cd\u542f R \u4ee5\u751f\u6548\u3002"
@@ -108,6 +120,14 @@ t <- function(key) {
   key_session = list(
     en = "API key set for this session only.",
     zh = "API \u5bc6\u94a5\u4ec5\u5f53\u524d\u4f1a\u8bdd\u6709\u6548\u3002"
+  ),
+  key_removed = list(
+    en = "API key removed from this session and {.file ~/.Renviron}.",
+    zh = "API \u5bc6\u94a5\u5df2\u4ece\u5f53\u524d\u4f1a\u8bdd\u548c {.file ~/.Renviron} \u79fb\u9664\u3002"
+  ),
+  key_removed_session = list(
+    en = "API key removed from this session.",
+    zh = "API \u5bc6\u94a5\u5df2\u4ece\u5f53\u524d\u4f1a\u8bdd\u79fb\u9664\u3002"
   ),
 
   # -- ask_llm --
@@ -130,6 +150,14 @@ t <- function(key) {
   llm_empty = list(
     en = "The model returned an empty response.",
     zh = "\u6a21\u578b\u8fd4\u56de\u4e86\u7a7a\u54cd\u5e94\u3002"
+  ),
+  llm_parse_fail = list(
+    en = "Failed to parse the AI service response.",
+    zh = "\u65e0\u6cd5\u89e3\u6790 AI \u670d\u52a1\u54cd\u5e94\u3002"
+  ),
+  llm_response_preview = list(
+    en = "Response preview: {body}",
+    zh = "\u54cd\u5e94\u9884\u89c8\uff1a{body}"
   ),
 
   # -- why --
@@ -159,6 +187,10 @@ t <- function(key) {
     en = "rwhy auto-watch is {.strong ON}. Errors will be auto-explained.",
     zh = "rwhy \u81ea\u52a8\u76d1\u63a7\u5df2{.strong \u5f00\u542f}\u3002\u62a5\u9519\u5c06\u88ab\u81ea\u52a8\u89e3\u91ca\u3002"
   ),
+  watch_already_on = list(
+    en = "rwhy auto-watch is already {.strong ON}.",
+    zh = "rwhy \u81ea\u52a8\u76d1\u63a7\u5df2\u7ecf{.strong \u5f00\u542f}\u3002"
+  ),
   watch_off = list(
     en = "rwhy auto-watch is {.strong OFF}.",
     zh = "rwhy \u81ea\u52a8\u76d1\u63a7\u5df2{.strong \u5173\u95ed}\u3002"
@@ -168,6 +200,18 @@ t <- function(key) {
   ask_invalid = list(
     en = "{.arg query} must be a non-empty character string.",
     zh = "{.arg query} \u5fc5\u987b\u662f\u975e\u7a7a\u5b57\u7b26\u4e32\u3002"
+  ),
+  ask_empty_code = list(
+    en = "The model did not return executable R code.",
+    zh = "\u6a21\u578b\u672a\u8fd4\u56de\u53ef\u6267\u884c\u7684 R \u4ee3\u7801\u3002"
+  ),
+  ask_parse_error = list(
+    en = "The generated code is not valid R code.",
+    zh = "\u751f\u6210\u7684\u4ee3\u7801\u4e0d\u662f\u6709\u6548\u7684 R \u4ee3\u7801\u3002"
+  ),
+  ask_risky_code = list(
+    en = "The generated code contains potentially risky operations. Review it carefully before running.",
+    zh = "\u751f\u6210\u7684\u4ee3\u7801\u5305\u542b\u6f5c\u5728\u9ad8\u98ce\u9669\u64cd\u4f5c\u3002\u8fd0\u884c\u524d\u8bf7\u4ed4\u7ec6\u68c0\u67e5\u3002"
   ),
   ask_writing = list(
     en = "AI is writing code for: {.emph {query}}",
@@ -212,6 +256,10 @@ t <- function(key) {
   ask_not_executed = list(
     en = "Code not executed. Copy it from above if needed.",
     zh = "\u4ee3\u7801\u672a\u6267\u884c\u3002\u5982\u9700\u4f7f\u7528\uff0c\u8bf7\u590d\u5236\u4e0a\u65b9\u4ee3\u7801\u3002"
+  ),
+  ask_not_interactive = list(
+    en = "Code not executed because this is a non-interactive session.",
+    zh = "\u5f53\u524d\u662f\u975e\u4ea4\u4e92\u5f0f\u4f1a\u8bdd\uff0c\u4ee3\u7801\u672a\u6267\u884c\u3002"
   ),
 
   # -- provider / configure --
@@ -302,8 +350,8 @@ t <- function(key) {
     zh = " (\u63a8\u8350)"
   ),
   cfg_use_default = list(
-    en = "Use default ({.val {model}})",
-    zh = "\u4f7f\u7528\u9ed8\u8ba4 ({.val {model}})"
+    en = "Use default ({model})",
+    zh = "\u4f7f\u7528\u9ed8\u8ba4 ({model})"
   ),
   cfg_enter_model = list(
     en = "Enter number (0-choice): ",
@@ -337,6 +385,50 @@ t <- function(key) {
     en = "Ollama mode -- no API key needed.",
     zh = "Ollama \u6a21\u5f0f \u2014\u2014 \u65e0\u9700 API \u5bc6\u94a5\u3002"
   ),
+  custom_title = list(
+    en = "Custom OpenAI-compatible API",
+    zh = "\u81ea\u5b9a\u4e49 OpenAI \u517c\u5bb9 API"
+  ),
+  custom_endpoint_help = list(
+    en = "Enter a full endpoint, or press Enter to provide host and port separately.",
+    zh = "\u8f93\u5165\u5b8c\u6574 endpoint\uff0c\u6216\u76f4\u63a5\u56de\u8f66\u540e\u5206\u522b\u8f93\u5165 host \u548c\u7aef\u53e3\u3002"
+  ),
+  custom_endpoint_prompt = list(
+    en = "Endpoint [e.g. http://localhost:8000/v1/chat/completions]: ",
+    zh = "Endpoint [\u4f8b\u5982 http://localhost:8000/v1/chat/completions]\uff1a"
+  ),
+  custom_host_prompt = list(
+    en = "Host [e.g. localhost or http://localhost]: ",
+    zh = "Host [\u4f8b\u5982 localhost \u6216 http://localhost]\uff1a"
+  ),
+  custom_port_prompt = list(
+    en = "Port [e.g. 8000, optional]: ",
+    zh = "\u7aef\u53e3 [\u4f8b\u5982 8000\uff0c\u53ef\u9009]\uff1a"
+  ),
+  custom_model_prompt = list(
+    en = "Model name: ",
+    zh = "\u6a21\u578b\u540d\u79f0\uff1a"
+  ),
+  custom_key_help = list(
+    en = "Paste the API key for this custom endpoint. Use a dummy value only if your endpoint does not require authentication.",
+    zh = "\u7c98\u8d34\u8be5\u81ea\u5b9a\u4e49 endpoint \u7684 API \u5bc6\u94a5\u3002\u5982\u679c\u8be5 endpoint \u4e0d\u9700\u8981\u9274\u6743\uff0c\u53ef\u4f7f\u7528\u4efb\u610f\u5360\u4f4d\u503c\u3002"
+  ),
+  custom_endpoint_invalid = list(
+    en = "Custom endpoint must be a non-empty URL or host.",
+    zh = "\u81ea\u5b9a\u4e49 endpoint \u5fc5\u987b\u662f\u975e\u7a7a URL \u6216 host\u3002"
+  ),
+  custom_port_invalid = list(
+    en = "Custom port must contain digits only.",
+    zh = "\u81ea\u5b9a\u4e49\u7aef\u53e3\u53ea\u80fd\u5305\u542b\u6570\u5b57\u3002"
+  ),
+  custom_model_invalid = list(
+    en = "Custom model name must be a non-empty character string.",
+    zh = "\u81ea\u5b9a\u4e49\u6a21\u578b\u540d\u79f0\u5fc5\u987b\u662f\u975e\u7a7a\u5b57\u7b26\u4e32\u3002"
+  ),
+  custom_saved = list(
+    en = "Custom OpenAI-compatible API configured.",
+    zh = "\u81ea\u5b9a\u4e49 OpenAI \u517c\u5bb9 API \u5df2\u914d\u7f6e\u3002"
+  ),
   cfg_complete = list(
     en = "Configuration Complete",
     zh = "\u914d\u7f6e\u5b8c\u6210"
@@ -348,6 +440,32 @@ t <- function(key) {
   cfg_ready = list(
     en = "You're ready to go! Try: {.fn why}() or {.fn ask_r}(\"your question\")",
     zh = "\u51c6\u5907\u5c31\u7eea\uff01\u8bd5\u8bd5\uff1a{.fn why}() \u6216 {.fn ask_r}(\"your question\")"
+  ),
+
+  # -- status --
+  status_title = list(
+    en = "rwhy status",
+    zh = "rwhy \u72b6\u6001"
+  ),
+  status_language = list(
+    en = "Language: {.val {lang}}",
+    zh = "\u8bed\u8a00\uff1a{.val {lang}}"
+  ),
+  status_watch = list(
+    en = "Auto-watch: {.val {status}}",
+    zh = "\u81ea\u52a8\u76d1\u63a7\uff1a{.val {status}}"
+  ),
+  status_on = list(
+    en = "on",
+    zh = "\u5f00\u542f"
+  ),
+  status_off = list(
+    en = "off",
+    zh = "\u5173\u95ed"
+  ),
+  status_key_hint = list(
+    en = "Set an API key with {.fn set_ai_key} or run {.fn configure}.",
+    zh = "\u8bf7\u4f7f\u7528 {.fn set_ai_key} \u8bbe\u7f6e API \u5bc6\u94a5\uff0c\u6216\u8fd0\u884c {.fn configure}\u3002"
   ),
 
   # -- welcome (.onAttach) --

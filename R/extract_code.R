@@ -1,6 +1,6 @@
 #' @title Extract R Code from Markdown
 #' @description Robustly extract R code blocks from LLM responses that may be
-#'   wrapped in Markdown fences (\verb{```r ... ```}).
+#'   wrapped in Markdown fences.
 #'
 #'   The extraction strategy is:
 #'   \enumerate{

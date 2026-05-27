@@ -1,7 +1,7 @@
 Package: rwhy
 Title: Your AI-Powered R Programming Assistant
 Version: 0.1.0
-Authors@R: person("fQwQf", email = "fQwQf6@outlook.com", role = c("aut", "cre"))
+Authors@R: person(given = "fQwQf", email = "fQwQf6@outlook.com", role = c("aut", "cre"))
 Description: An AI assistant that lives in your R console.
     Explain errors with why(), generate code with ask_r(), and get instant
     help from large language models without ever leaving your R session.
@@ -10,7 +10,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports:
     httr2 (>= 1.0.0),
     jsonlite (>= 1.8.0),
@@ -19,6 +19,7 @@ Suggests:
     utils,
     rstudioapi (>= 0.15),
     testthat (>= 3.0.0),
+    withr,
     knitr,
     rmarkdown
 Config/testthat/edition: 3

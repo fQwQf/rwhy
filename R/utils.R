@@ -1,5 +1,5 @@
 #' @title Get Last Error Message
-#' @keywords internal
+#' @noRd
 .rwhy_geterrmessage <- function() {
   fn <- tryCatch(
     get("geterrmessage", mode = "function"),
@@ -17,8 +17,8 @@
 
 
 #' @title Try to Get Source Context from RStudio
-#' @keywords internal
-try_get_source_context <- function() {
+#' @noRd
+try_get_source_context <- function(selection_only = FALSE, max_lines = 50) {
   tryCatch({
     if (!requireNamespace("rstudioapi", quietly = TRUE)) return(NULL)
     if (!rstudioapi::isAvailable()) return(NULL)
@@ -27,13 +27,14 @@ try_get_source_context <- function() {
 
     selection <- context$selection[[1]]$text
     if (nzchar(trimws(selection))) return(selection)
+    if (isTRUE(selection_only)) return(NULL)
 
     content <- paste(context$contents, collapse = "\n")
     if (nzchar(trimws(content))) {
       lines <- strsplit(content, "\n")[[1]]
-      if (length(lines) > 50) {
+      if (length(lines) > max_lines) {
         n <- length(lines)
-        lines <- lines[(n - 49):n]
+        lines <- lines[(n - max_lines + 1):n]
       }
       return(paste(lines, collapse = "\n"))
     }
@@ -43,7 +44,7 @@ try_get_source_context <- function() {
 
 
 #' @title Print a Welcome Message
-#' @keywords internal
+#' @noRd
 .onAttach <- function(libname, pkgname) {
   if (interactive()) {
     packageStartupMessage(
@@ -69,4 +70,22 @@ try_get_source_context <- function() {
       )
     }
   }
+}
+
+
+#' @noRd
+format_message <- function(template, ...) {
+  values <- list(...)
+  if (length(values) == 0) return(template)
+
+  for (nm in names(values)) {
+    template <- gsub(
+      paste0("\\{", nm, "\\}"),
+      as.character(values[[nm]]),
+      template,
+      fixed = FALSE
+    )
+  }
+
+  template
 }
