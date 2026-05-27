@@ -18,7 +18,7 @@
 
 ```r
 # install.packages("devtools")
-devtools::install_github("your_username/rwhy")
+devtools::install_github("fQwQf/rwhy")
 ```
 
 本地开发安装：
